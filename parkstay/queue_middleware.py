@@ -71,9 +71,15 @@ class QueueControl(object):
                                         #  else:
                                         ipaddress = self.get_client_ip(request)
                                         url = settings.QUEUE_BACKEND_URL+"/api/check-create-session/?session_key="+sitequeuesession+"&queue_group="+settings.QUEUE_GROUP_NAME+"&script_exempt_key="+settings.QUEUE_SCRIPT_EXEMPT_KEY+"&ipaddress="+ipaddress
-                                        resp = requests.get(url, data = {}, cookies={},  verify=False, timeout=20)
+                                        resp = requests.get(url, data = {}, cookies={},  verify=False, timeout=90)
                                         
                                         queue_json = resp.json()
+                                        
+                                        if 'queue_full' in queue_json:
+                                             if queue_json['queue_full'] is True:
+                                                  response =HttpResponse("<script>window.location.replace('"+queue_json['queue_waiting_room_url']+"');</script>Redirecting")
+                                                  return response                                                                                          
+
                                         if 'session_key' in queue_json:
                                              session_key = queue_json['session_key']
                                         if sitequeuesession !=session_key:
@@ -102,7 +108,7 @@ class QueueControl(object):
                response.set_cookie('sitequeuesession', session_key, domain=settings.QUEUE_DOMAIN)
           return response
      
-     def get_client_ip(request):
+     def get_client_ip(self, request):
           x_real_ip = request.META.get('HTTP_X_REAL_IP')
           x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
           x_orignal_forwarded_for =  request.META.get('HTTP_X_ORIGINAL_FORWARDED_FOR')
