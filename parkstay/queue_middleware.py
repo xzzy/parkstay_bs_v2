@@ -90,7 +90,7 @@ class QueueControl(object):
                                         if queue_json['status'] == 'Waiting': 
                                              #print (queue_json['queue_waiting_room_url'])
                                              response =HttpResponse("<script>window.location.replace('"+queue_json['queue_waiting_room_url']+"');</script>Redirecting")
-                                             response.set_cookie('sitequeuesession', session_key, max_age=2592000, samesite=None, domain=settings.QUEUE_DOMAIN)
+                                             response.set_cookie('sitequeuesession', session_key, max_age=3600, samesite=None, domain=settings.QUEUE_DOMAIN)
                                              print ('You are waiting : '+str(session_key))
                                              return response
                                         else:
