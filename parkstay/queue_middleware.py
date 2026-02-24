@@ -90,11 +90,13 @@ class QueueControl(object):
                                              print ("DIFFERENCE SESSION KEY")
                                              print ("CURRENT:"+sitequeuesession+"NEW:"+session_key)
                                              print (queue_json)
+                                        status = "Unknown"
                                         if 'status' in queue_json:
+                                             status = queue_json['status']
                                              if queue_json['status'] == 'Waiting': 
                                                   #print (queue_json['queue_waiting_room_url'])
                                                   response =HttpResponse("<script>window.location.replace('"+queue_json['queue_waiting_room_url']+"');</script>Redirecting")
-                                                  response.set_cookie('sitequeuesession', session_key, max_age=2592000, samesite=None, domain=settings.QUEUE_DOMAIN)
+                                                  response.set_cookie('sitequeuesession', session_key, max_age=3600, samesite=None, domain=settings.QUEUE_DOMAIN)
                                                   print ('You are waiting : '+str(session_key))
                                                   return response
                                              else:
@@ -103,7 +105,7 @@ class QueueControl(object):
                                         if "HTTP_REFERER" in request.META:
                                              http_referer = request.META.get('HTTP_REFERER','')
 
-                                        print ("Queue Log,{},{},{},{},{},{},{}".format(datetime.now().strftime("%A, %d %b %Y %H:%M:%S"), ipaddress, x_real_ip, browser_agent, http_referer, request.path, queue_json['status']))
+                                        print ("Queue Log,{},{},{},{},{},{},{}".format(datetime.now().strftime("%A, %d %b %Y %H:%M:%S"), ipaddress, x_real_ip, browser_agent, http_referer, request.path, status))
                                                   
                     except Exception as e:
                          print (e)
