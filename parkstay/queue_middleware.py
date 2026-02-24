@@ -7,7 +7,7 @@ from django.conf import settings
 from django.urls import reverse
 from django.http import Http404, HttpResponse, JsonResponse, HttpResponseRedirect
 from django.utils import timezone
-
+from datetime import datetime
 CHECKOUT_PATH = re.compile('^/ledger-api')
 PROCESS_PAYMENT =  re.compile('^/ledger-api/process-payment')
 
@@ -70,6 +70,10 @@ class QueueControl(object):
                                         #       resp = requests.get(url, data = {}, cookies={},  verify=False)                                    
                                         #  else:
                                         ipaddress = self.get_client_ip(request)
+                                        x_real_ip = '0.0.0.0'
+                                        if "HTTP_X_REAL_IP" in request.META:
+                                             x_real_ip = request.META.get('HTTP_X_REAL_IP')
+
                                         url = settings.QUEUE_BACKEND_URL+"/api/check-create-session/?session_key="+sitequeuesession+"&queue_group="+settings.QUEUE_GROUP_NAME+"&script_exempt_key="+settings.QUEUE_SCRIPT_EXEMPT_KEY+"&ipaddress="+ipaddress
                                         resp = requests.get(url, data = {}, cookies={},  verify=False, timeout=90)
                                         
@@ -79,22 +83,27 @@ class QueueControl(object):
                                              if queue_json['queue_full'] is True:
                                                   response =HttpResponse("<script>window.location.replace('"+queue_json['queue_waiting_room_url']+"');</script>Redirecting")
                                                   return response                                                                                          
-
+                                        
                                         if 'session_key' in queue_json:
                                              session_key = queue_json['session_key']
                                         if sitequeuesession !=session_key:
                                              print ("DIFFERENCE SESSION KEY")
                                              print ("CURRENT:"+sitequeuesession+"NEW:"+session_key)
                                              print (queue_json)
-                                        
-                                        if queue_json['status'] == 'Waiting': 
-                                             #print (queue_json['queue_waiting_room_url'])
-                                             response =HttpResponse("<script>window.location.replace('"+queue_json['queue_waiting_room_url']+"');</script>Redirecting")
-                                             response.set_cookie('sitequeuesession', session_key, max_age=2592000, samesite=None, domain=settings.QUEUE_DOMAIN)
-                                             print ('You are waiting : '+str(session_key))
-                                             return response
-                                        else:
-                                             print ('Active Session')
+                                        if 'status' in queue_json:
+                                             if queue_json['status'] == 'Waiting': 
+                                                  #print (queue_json['queue_waiting_room_url'])
+                                                  response =HttpResponse("<script>window.location.replace('"+queue_json['queue_waiting_room_url']+"');</script>Redirecting")
+                                                  response.set_cookie('sitequeuesession', session_key, max_age=2592000, samesite=None, domain=settings.QUEUE_DOMAIN)
+                                                  print ('You are waiting : '+str(session_key))
+                                                  return response
+                                             else:
+                                                  print ('Active Session')
+                                        http_referer = ''
+                                        if "HTTP_REFERER" in request.META:
+                                             http_referer = request.META.get('HTTP_REFERER','')
+
+                                        print ("Queue Log,{},{},{},{},{},{},{}".format(datetime.now().strftime("%A, %d %b %Y %H:%M:%S"), ipaddress, x_real_ip, browser_agent, http_referer, request.path, queue_json['status']))
                                                   
                     except Exception as e:
                          print (e)
