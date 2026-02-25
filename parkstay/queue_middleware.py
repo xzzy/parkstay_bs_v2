@@ -2,6 +2,7 @@ import json
 import re
 import datetime
 import requests
+import logging
 from django.conf import settings
 #from django.core.urlresolvers import reverse
 from django.urls import reverse
@@ -10,7 +11,7 @@ from django.utils import timezone
 from datetime import datetime
 CHECKOUT_PATH = re.compile('^/ledger-api')
 PROCESS_PAYMENT =  re.compile('^/ledger-api/process-payment')
-
+logger = logging.getLogger('log')
 
 BLOCKED_SCRIPTING = [
     "curl",
@@ -104,8 +105,8 @@ class QueueControl(object):
                                         http_referer = ''
                                         if "HTTP_REFERER" in request.META:
                                              http_referer = request.META.get('HTTP_REFERER','')
-
-                                        print ("Queue Log,{},{},{},{},{},{},{}".format(datetime.now().strftime("%A, %d %b %Y %H:%M:%S"), ipaddress, x_real_ip, browser_agent, http_referer, request.path, status))
+                                        logger.info("Queue Log,{},{},{},{},{},{},{}".format(datetime.now().strftime("%A, %d %b %Y %H:%M:%S"), ipaddress, x_real_ip, browser_agent, http_referer, request.path, status))
+                                        # print ("Queue Log,{},{},{},{},{},{},{}".format(datetime.now().strftime("%A, %d %b %Y %H:%M:%S"), ipaddress, x_real_ip, browser_agent, http_referer, request.path, status))
                                                   
                     except Exception as e:
                          print (e)
