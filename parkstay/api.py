@@ -1018,6 +1018,8 @@ def campground_availabilty_view(request,  *args, **kwargs):
     site_obj = {'campground': {}, 'campground_available': {}, 'available_cg': []}
     start_date_string = request.GET.get('arrival','2022/03/01')
     end_date_string = request.GET.get('departure','2022/04/07')
+    if start_date_string == '' or end_date_string == '':
+        return HttpResponse(json.dumps(site_obj), content_type='application/json')
     start_date = datetime.strptime(start_date_string, "%Y/%m/%d").date()
     end_date = datetime.strptime(end_date_string, "%Y/%m/%d").date()
     # one_eighty_days_active = False
