@@ -92,7 +92,7 @@ class QueueControl(object):
                                              print ("CURRENT:"+sitequeuesession+"NEW:"+session_key)
                                              print (queue_json)
                                         status = "Unknown"
-                                        
+                                        http_referer = ''
                                         if 'status' in queue_json:
                                              status = queue_json['status']
                                              if queue_json['status'] == 'Waiting': 
@@ -104,7 +104,7 @@ class QueueControl(object):
                                                   return response
                                              else:
                                                   print ('Active Session')
-                                        http_referer = ''
+                                        
                                         if "HTTP_REFERER" in request.META:
                                              http_referer = request.META.get('HTTP_REFERER','')
                                         logger.info("Queue Log,{},{},{},{},{},{},{}".format(datetime.now().strftime("%A, %d %b %Y %H:%M:%S"), ipaddress, x_real_ip, browser_agent, http_referer, request.path, status))
