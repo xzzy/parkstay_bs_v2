@@ -82,7 +82,7 @@ class QueueControl(object):
                                              browser_agent = request.META['HTTP_USER_AGENT']                                             
                                              headers['User-Agent'] = browser_agent
                                         url = settings.QUEUE_BACKEND_URL+"/api/check-create-session/?session_key="+sitequeuesession+"&queue_group="+settings.QUEUE_GROUP_NAME+"&script_exempt_key="+settings.QUEUE_SCRIPT_EXEMPT_KEY+"&ipaddress="+ipaddress
-                                        resp = requests.get(url, data = {}, cookies={}, headers=headers verify=False, timeout=90)
+                                        resp = requests.get(url, data = {}, cookies={}, headers=headers, verify=False, timeout=90)
                                         
                                         queue_json = resp.json()
                                         
