@@ -75,8 +75,14 @@ class QueueControl(object):
                                         if "HTTP_X_REAL_IP" in request.META:
                                              x_real_ip = request.META.get('HTTP_X_REAL_IP')
 
+                                        headers = {
+                                             'User-Agent': 'Parkstay Booking/2.0'
+                                        }
+                                        if 'HTTP_USER_AGENT' in request.META:
+                                             browser_agent = request.META['HTTP_USER_AGENT']                                             
+                                             headers['User-Agent'] = browser_agent
                                         url = settings.QUEUE_BACKEND_URL+"/api/check-create-session/?session_key="+sitequeuesession+"&queue_group="+settings.QUEUE_GROUP_NAME+"&script_exempt_key="+settings.QUEUE_SCRIPT_EXEMPT_KEY+"&ipaddress="+ipaddress
-                                        resp = requests.get(url, data = {}, cookies={},  verify=False, timeout=90)
+                                        resp = requests.get(url, data = {}, cookies={}, headers=headers verify=False, timeout=90)
                                         
                                         queue_json = resp.json()
                                         
