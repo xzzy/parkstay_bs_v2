@@ -78,6 +78,7 @@ class QueueControl(object):
                                         headers = {
                                              'User-Agent': 'Parkstay Booking/2.0'
                                         }
+
                                         if 'HTTP_USER_AGENT' in request.META:
                                              browser_agent = request.META['HTTP_USER_AGENT']                                             
                                              headers['User-Agent'] = browser_agent
@@ -86,10 +87,19 @@ class QueueControl(object):
                                         
                                         queue_json = resp.json()
                                         
+                                        if "cr" in queue_json:
+                                             if queue_json["cr"] is True:
+                                                  if request.path == '/' or request.path.startswith('/search-availability/information/'):
+                                                       print ("Allow web crawler to crawl for seo, but no access to api with out queue session")
+                                                       response= self.get_response(request)
+                                                       return response
+                                                  
                                         if 'queue_full' in queue_json:
                                              if queue_json['queue_full'] is True:
                                                   response =HttpResponse("<script>window.location.replace('"+queue_json['queue_waiting_room_url']+"');</script>Redirecting")
-                                                  return response                                                                                          
+                                                  return response
+
+                                                                                                                                  
                                         
                                         if 'session_key' in queue_json:
                                              session_key = queue_json['session_key']
